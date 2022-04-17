@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="Lab:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/Lab_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="Lab/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="Lab" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.9" />
+          <element id="library" level="project" name="amqp-client-5.7.1" />
+          <element id="library" level="project" name="Maven: log4j:log4j:1.2.12" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.5" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-reload4j:1.7.35" />
+          <element id="library" level="project" name="Maven: ch.qos.reload4j:reload4j:1.2.18.3" />
+          <element id="library" level="project" name="Maven: com.google.protobuf:protobuf-java:3.19.3" />
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-pool2:2.11.1" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

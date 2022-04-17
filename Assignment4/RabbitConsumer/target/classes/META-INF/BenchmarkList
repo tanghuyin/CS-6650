@@ -1,0 +1,4 @@
+JMH S 26 benchmark.IntegerSpeedTest S 55 benchmark.jmh_generated.IntegerSpeedTest_atomic_jmhTest S 6 atomic S 11 AverageTime E A 1 2 10 E I 2 10 E E I 2 10 E E E E E E E E E U 12 MICROSECONDS E E 
+JMH S 26 benchmark.IntegerSpeedTest S 53 benchmark.jmh_generated.IntegerSpeedTest_lock_jmhTest S 4 lock S 11 AverageTime E A 1 2 10 E I 2 10 E E I 2 10 E E E E E E E E E U 12 MICROSECONDS E E 
+JMH S 26 benchmark.IntegerSpeedTest S 55 benchmark.jmh_generated.IntegerSpeedTest_single_jmhTest S 6 single S 11 AverageTime E A 1 1 1 E I 2 10 E E I 2 10 E E E E E E E E E U 12 MICROSECONDS E E 
+JMH S 26 benchmark.IntegerSpeedTest S 53 benchmark.jmh_generated.IntegerSpeedTest_sync_jmhTest S 4 sync S 11 AverageTime E A 1 2 10 E I 2 10 E E I 2 10 E E E E E E E E E U 12 MICROSECONDS E E 

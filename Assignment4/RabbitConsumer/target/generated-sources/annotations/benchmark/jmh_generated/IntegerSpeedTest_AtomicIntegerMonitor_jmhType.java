@@ -1,0 +1,4 @@
+package benchmark.jmh_generated;
+public class IntegerSpeedTest_AtomicIntegerMonitor_jmhType extends IntegerSpeedTest_AtomicIntegerMonitor_jmhType_B3 {
+}
+
