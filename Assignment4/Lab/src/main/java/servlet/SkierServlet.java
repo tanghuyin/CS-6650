@@ -9,6 +9,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import scheme.LiftRide;
 import scheme.SkierVertical;
 import service.SkierService;
@@ -22,12 +24,13 @@ public class SkierServlet extends HttpServlet {
   private final Gson gson = new Gson();
   private GenericObjectPool<Channel> channelPool;
   private ChannelFactory channelFactory;
+  private JedisPool jedisPool;
 
   @Override
   public void init() throws ServletException {
     super.init();
     channelFactory = new ChannelFactory();
-
+    jedisPool = new JedisPool("localhost", 6379);
     channelPool = new GenericObjectPool<>(channelFactory);
     channelPool.setMaxTotal(50);
     channelPool.setBlockWhenExhausted(true);
@@ -49,6 +52,9 @@ public class SkierServlet extends HttpServlet {
       String resort = request.getParameter("resort");
       String season = request.getParameter("season");
       SkierVertical skierVertical = SkierService.getTotalVerticals(skierID, resort, season);
+      try (Jedis jedis = jedisPool.getResource()) {
+        //TODO:
+      }
       response.setStatus(HttpServletResponse.SC_OK);
       out.print(gson.toJson(skierVertical));
     } else if (getSkiDayVerticalForASkier.matcher(url).matches()) {
@@ -58,6 +64,9 @@ public class SkierServlet extends HttpServlet {
       String dayID = params[6];
       String skierID = params[8];
       int total = SkierService.getSkiDayVerticalForASkier(resortID, seasonID, dayID, skierID);
+      try (Jedis jedis = jedisPool.getResource()) {
+        //TODO:
+      }
       response.setStatus(HttpServletResponse.SC_OK);
       out.print(total);
     } else {
