@@ -27,6 +27,10 @@ public class ResortService {
     return resortSkiers;
   }
 
+  public static ResortSkiers getUniqueSkierNumber(String resortID, Integer number) {
+    return new ResortSkiers(resortID, number);
+  }
+
   public static void addNewSeasonForAResortUrl(String resortID) {
 
   }

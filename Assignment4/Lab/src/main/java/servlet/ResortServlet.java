@@ -8,11 +8,15 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import scheme.Resort;
 import scheme.ResortList;
 import scheme.ResortSkiers;
 import scheme.SeasonList;
 import service.ResortService;
+import util.ChannelFactory;
 import util.Response;
 import util.ServletHelper;
 
@@ -20,6 +24,14 @@ import util.ServletHelper;
 public class ResortServlet extends HttpServlet {
 
   private final Gson gson = new Gson();
+  private JedisPool jedisPool;
+
+  @Override
+  public void init() throws ServletException {
+    super.init();
+    //TODO: change to redis ip
+    jedisPool = new JedisPool("localhost", 6379);
+  }
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -53,9 +65,12 @@ public class ResortServlet extends HttpServlet {
       String seasonID = params[4];
       String dayID = params[6];
       if (ResortService.isValidResortID(resortID)) {
-        ResortSkiers resortSkiers = ResortService.getNumberOfUniqueSkiersByResortSeasonDay(resortID, seasonID, dayID);
-        response.setStatus(HttpServletResponse.SC_OK);
-        out.print(gson.toJson(resortSkiers));
+        //ResortSkiers resortSkiers = ResortService.getNumberOfUniqueSkiersByResortSeasonDay(resortID, seasonID, dayID);
+        try (Jedis jedis = jedisPool.getResource()) {
+          long number = jedis.scard("s:" + Integer.parseInt(resortID) + ";d:" + Integer.parseInt(dayID) + ";s:" + Integer.parseInt(seasonID));
+          response.setStatus(HttpServletResponse.SC_OK);
+          out.print(gson.toJson(ResortService.getUniqueSkierNumber(resortID, (int) number)));
+        }
       } else {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.print(gson.toJson(new Response("string")));
