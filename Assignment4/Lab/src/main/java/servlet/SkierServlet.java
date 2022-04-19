@@ -2,12 +2,14 @@ package servlet;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Pattern;
-import javax.servlet.*;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
-import java.io.IOException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -30,6 +32,7 @@ public class SkierServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     channelFactory = new ChannelFactory();
+    //TODO: change to redis ip
     jedisPool = new JedisPool("localhost", 6379);
     channelPool = new GenericObjectPool<>(channelFactory);
     channelPool.setMaxTotal(50);
@@ -40,7 +43,8 @@ public class SkierServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     String url = request.getRequestURI();
-    Pattern getSkiDayVerticalForASkier = Pattern.compile("/skiers/[0-9]+/seasons/[0-9]+/days/[0-9]+/skiers/[0-9]+/?");
+    Pattern getSkiDayVerticalForASkier = Pattern.compile(
+        "/skiers/[0-9]+/seasons/[0-9]+/days/[0-9]+/skiers/[0-9]+/?");
     Pattern getTotalVertical = Pattern.compile("/skiers/[0-9]+/vertical/?");
     PrintWriter out = response.getWriter();
     response.setContentType("application/json");
@@ -51,24 +55,25 @@ public class SkierServlet extends HttpServlet {
       String skierID = params[2];
       String resort = request.getParameter("resort");
       String season = request.getParameter("season");
-      SkierVertical skierVertical = SkierService.getTotalVerticals(skierID, resort, season);
+      //SkierVertical skierVertical = SkierService.getTotalVerticals(skierID, resort, season);
       try (Jedis jedis = jedisPool.getResource()) {
-        //TODO:
+        int skierVertical = Integer.parseInt(jedis.get("s:" + skierID + ";r:" + resort + ";s:" + season + "_v"));
+        response.setStatus(HttpServletResponse.SC_OK);
+        out.print(gson.toJson(skierVertical));
       }
-      response.setStatus(HttpServletResponse.SC_OK);
-      out.print(gson.toJson(skierVertical));
     } else if (getSkiDayVerticalForASkier.matcher(url).matches()) {
       String[] params = url.split("/");
       String resortID = params[2];
       String seasonID = params[4];
       String dayID = params[6];
       String skierID = params[8];
-      int total = SkierService.getSkiDayVerticalForASkier(resortID, seasonID, dayID, skierID);
+      //int total = SkierService.getSkiDayVerticalForASkier(resortID, seasonID, dayID, skierID);
       try (Jedis jedis = jedisPool.getResource()) {
-        //TODO:
+        int totalVertical = Integer.parseInt(
+            jedis.get("s:" + skierID + ";d:" + dayID + ";r:" + resortID + ";s:" + seasonID + "_v"));
+        response.setStatus(HttpServletResponse.SC_OK);
+        out.print(totalVertical);
       }
-      response.setStatus(HttpServletResponse.SC_OK);
-      out.print(total);
     } else {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       out.print(gson.toJson(new Response("string")));
@@ -79,7 +84,8 @@ public class SkierServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     String url = request.getRequestURI();
-    Pattern addNewLiftRideForTheSkier = Pattern.compile("/skiers/[0-9]+/seasons/[0-9]+/days/[0-9]+/skiers/[0-9]+/?");
+    Pattern addNewLiftRideForTheSkier = Pattern.compile(
+        "/skiers/[0-9]+/seasons/[0-9]+/days/[0-9]+/skiers/[0-9]+/?");
     PrintWriter out = response.getWriter();
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
@@ -91,7 +97,8 @@ public class SkierServlet extends HttpServlet {
       String seasonID = params[4];
       String dayID = params[6];
       String skierID = params[8];
-      SkierService.addSkiDayVerticalForASkier(resortID, seasonID, dayID, skierID, ride, channelPool);
+      SkierService.addSkiDayVerticalForASkier(resortID, seasonID, dayID, skierID, ride,
+          channelPool);
       response.setStatus(HttpServletResponse.SC_CREATED);
     } else {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);

@@ -29,6 +29,7 @@ public class ResortServlet extends HttpServlet {
   @Override
   public void init() throws ServletException {
     super.init();
+    //TODO: change to redis ip
     jedisPool = new JedisPool("localhost", 6379);
   }
 
@@ -64,12 +65,12 @@ public class ResortServlet extends HttpServlet {
       String seasonID = params[4];
       String dayID = params[6];
       if (ResortService.isValidResortID(resortID)) {
-        ResortSkiers resortSkiers = ResortService.getNumberOfUniqueSkiersByResortSeasonDay(resortID, seasonID, dayID);
+        //ResortSkiers resortSkiers = ResortService.getNumberOfUniqueSkiersByResortSeasonDay(resortID, seasonID, dayID);
         try (Jedis jedis = jedisPool.getResource()) {
-          //TODO:
+          long number = jedis.scard("s:" + Integer.parseInt(resortID) + ";d:" + Integer.parseInt(dayID) + ";s:" + Integer.parseInt(seasonID));
+          response.setStatus(HttpServletResponse.SC_OK);
+          out.print(gson.toJson(ResortService.getUniqueSkierNumber(resortID, (int) number)));
         }
-        response.setStatus(HttpServletResponse.SC_OK);
-        out.print(gson.toJson(resortSkiers));
       } else {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         out.print(gson.toJson(new Response("string")));
